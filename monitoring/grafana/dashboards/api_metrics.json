@@ -1,0 +1,52 @@
+{
+  "title": "API Performance",
+  "uid": "api_performance",
+  "panels": [
+    {
+      "title": "API Performance Metrics",
+      "type": "text",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "# API Performance Dashboard\nMonitoring key metrics for API performance including request rates and response times"
+      }
+    },
+    {
+      "title": "Request Rate",
+      "type": "graph",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "rate(http_requests_total[5m])",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "title": "Response Times",
+      "type": "graph",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    }
+  ]
+} 

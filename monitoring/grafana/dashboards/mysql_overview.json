@@ -1,0 +1,52 @@
+{
+  "title": "MySQL Overview",
+  "uid": "mysql_overview",
+  "panels": [
+    {
+      "title": "MySQL Database Metrics",
+      "type": "text",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "# MySQL Overview Dashboard\nKey performance indicators for MySQL database including connections and query rates"
+      }
+    },
+    {
+      "title": "MySQL Connections",
+      "type": "graph",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "mysql_global_status_threads_connected",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "title": "MySQL Queries",
+      "type": "graph",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "rate(mysql_global_status_queries[5m])",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    }
+  ]
+} 

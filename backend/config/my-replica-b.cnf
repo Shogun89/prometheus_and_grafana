@@ -1,0 +1,5 @@
+[client]
+user=root
+password=rootpassword
+host=mysql-replica-b
+port=3306 

@@ -1,0 +1,117 @@
+services:
+  auth:
+    extends:
+      file: auth/compose.auth.yml
+      service: auth
+    container_name: auth-service
+    networks:
+      - monitoring-network
+
+  auth-db:
+    extends:
+      file: auth/compose.auth.yml
+      service: auth-db
+    container_name: auth-db
+    networks:
+      - monitoring-network
+
+  # Backend services
+  api-a:
+    extends:
+      file: backend/compose.backend.yml
+      service: api-a
+    networks:
+      - monitoring-network
+
+  api-b:
+    extends:
+      file: backend/compose.backend.yml
+      service: api-b
+    networks:
+      - monitoring-network
+
+  # All other services with network declaration...
+  mysql-master-a:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-master-a
+    networks:
+      - monitoring-network
+
+  mysql-replica-a:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-replica-a
+    networks:
+      - monitoring-network
+
+  mysql-master-b:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-master-b
+    networks:
+      - monitoring-network
+
+  mysql-replica-b:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-replica-b
+    networks:
+      - monitoring-network
+
+  # MySQL Exporters for Shard 1
+  mysql-exporter-master-a:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-exporter-master-a
+    networks:
+      - monitoring-network
+
+  mysql-exporter-replica-a:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-exporter-replica-a
+    networks:
+      - monitoring-network
+
+  # MySQL Exporters for Shard 2
+  mysql-exporter-master-b:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-exporter-master-b
+    networks:
+      - monitoring-network
+
+  mysql-exporter-replica-b:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-exporter-replica-b
+    networks:
+      - monitoring-network
+
+  nginx:
+    extends:
+      file: router/compose.router.yml
+      service: nginx
+    networks:
+      - monitoring-network
+    depends_on:
+      - auth
+
+  prometheus:
+    extends:
+      file: monitoring/compose.monitoring.yml
+      service: prometheus
+    networks:
+      - monitoring-network
+
+  grafana:
+    extends:
+      file: monitoring/compose.monitoring.yml
+      service: grafana
+    networks:
+      - monitoring-network
+
+networks:
+  monitoring-network:
+    driver: bridge

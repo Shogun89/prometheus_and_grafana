@@ -1,0 +1,27 @@
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: Dockerfile.auth
+    container_name: auth-service
+    environment:
+      - DATABASE_URL=mysql://auth_user:auth_password@auth-db/auth_db
+    ports:
+      - "8003:8000"
+    depends_on:
+      - auth-db
+    networks:
+      - monitoring-network
+
+  auth-db:
+    image: mysql:8.0
+    container_name: auth-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: auth_password
+    ports:
+      - "3307:3306"
+    networks:
+      - monitoring-network

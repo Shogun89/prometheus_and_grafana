@@ -1,0 +1,73 @@
+services:
+  auth:
+    extends:
+      file: auth/compose.auth.yml
+      service: auth
+    container_name: auth-service
+
+  auth-db:
+    extends:
+      file: auth/compose.auth.yml
+      service: auth-db
+    container_name: auth-db
+
+  # Backend shard 1 (even user_ids)
+  api-a:
+    extends:
+      file: backend/compose.backend.yml
+      service: api-a
+    container_name: api-a
+
+  # Backend shard 2 (odd user_ids)
+  api-b:
+    extends:
+      file: backend/compose.backend.yml
+      service: api-b
+    container_name: api-b
+
+  # Databases for shard 1
+  mysql-master-a:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-master-a
+
+  mysql-replica-a:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-replica-a
+
+  # Databases for shard 2
+  mysql-master-b:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-master-b
+
+  mysql-replica-b:
+    extends:
+      file: backend/compose.backend.yml
+      service: mysql-replica-b
+
+  nginx:
+    extends:
+      file: router/compose.router.yml
+      service: nginx
+    depends_on:
+      - auth
+      - api-a
+      - api-b
+
+  tests:
+    build:
+      context: ./tests
+      dockerfile: Dockerfile.test
+    networks:
+      - mysql-network
+    depends_on:
+      - nginx
+      - auth
+      - api-a
+      - api-b
+
+networks:
+  mysql-network:
+    driver: bridge

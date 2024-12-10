@@ -1,0 +1,24 @@
+FROM python:3.10
+
+WORKDIR /app
+
+# Install MySQL client, netcat, and dos2unix
+RUN apt-get update && \
+    apt-get install -y default-mysql-client netcat-traditional dos2unix && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Convert line endings and make scripts executable
+RUN dos2unix scripts/*.sh && \
+    chmod +x scripts/*.sh
+
+EXPOSE 8000
+
+# Run the application
+ENTRYPOINT ["./scripts/api_entrypoint.sh"]

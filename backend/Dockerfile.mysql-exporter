@@ -1,0 +1,10 @@
+FROM prom/mysqld-exporter
+
+USER root
+COPY config/my-*.cnf /etc/mysql/
+RUN chmod 644 /etc/mysql/my-*.cnf && \
+    chown -R nobody:nobody /etc/mysql/
+
+USER nobody
+
+ENTRYPOINT [ "/bin/mysqld_exporter" ]

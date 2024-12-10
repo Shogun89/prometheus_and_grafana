@@ -1,0 +1,36 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'auth'
+    static_configs:
+      - targets: ['auth:8000']
+
+  - job_name: 'api-a'
+    static_configs:
+      - targets: ['api-a:8000']
+
+  - job_name: 'api-b'
+    static_configs:
+      - targets: ['api-b:8000']
+
+  - job_name: 'mysql-master-a'
+    static_configs:
+      - targets: ['mysql-exporter-master-a:9104']
+
+  - job_name: 'mysql-replica-a'
+    static_configs:
+      - targets: ['mysql-exporter-replica-a:9104']
+
+  - job_name: 'mysql-master-b'
+    static_configs:
+      - targets: ['mysql-exporter-master-b:9104']
+
+  - job_name: 'mysql-replica-b'
+    static_configs:
+      - targets: ['mysql-exporter-replica-b:9104']

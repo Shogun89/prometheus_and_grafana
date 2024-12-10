@@ -1,0 +1,186 @@
+services:
+
+  # Backend shard 1 - handles even user_ids
+  api-a:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: api-a
+    environment:
+      - SHARD=a
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_HOST=mysql-master-a
+      - DB_NAME=fastapi_db
+    ports:
+      - "8001:8000"
+    depends_on:
+      - mysql-master-a
+      - mysql-replica-a
+    networks:
+      - monitoring-network
+
+  # Backend shard 2 - handles odd user_ids
+  api-b:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: api-b
+    environment:
+      - SHARD=b
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_HOST=mysql-master-b
+      - DB_NAME=fastapi_db
+    ports:
+      - "8002:8000"
+    depends_on:
+      - mysql-master-b
+      - mysql-replica-b
+    networks:
+      - monitoring-network
+
+  # Database master for shard 1
+  mysql-master-a:
+    container_name: mysql-master-a
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fastapi_db
+    ports:
+      - "3316:3306"
+    command: >
+      --authentication_policy=mysql_native_password
+      --server-id=1
+      --log-bin=mysql-bin
+      --gtid_mode=ON
+      --enforce-gtid-consistency=ON
+      --innodb-buffer-pool-size=1G
+      --host-cache-size=0
+    networks:
+      - monitoring-network
+
+  # Database replica for shard 1
+  mysql-replica-a:
+    container_name: mysql-replica-a
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fastapi_db
+    ports:
+      - "3317:3306"
+    command: >
+      --authentication_policy=mysql_native_password
+      --server-id=11
+      --log-bin=mysql-bin
+      --gtid_mode=ON
+      --enforce-gtid-consistency=ON
+      --read-only=1
+      --relay-log=relay-bin
+      --skip_replica_start=1
+      --innodb-buffer-pool-size=1G
+      --host-cache-size=0
+    networks:
+      - monitoring-network
+
+  # Database master for shard 2
+  mysql-master-b:
+    container_name: mysql-master-b
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fastapi_db
+    ports:
+      - "3326:3306"
+    command: >
+      --authentication_policy=mysql_native_password
+      --server-id=2
+      --log-bin=mysql-bin
+      --gtid_mode=ON
+      --enforce-gtid-consistency=ON
+      --innodb-buffer-pool-size=1G
+      --host-cache-size=0
+    networks:
+      - monitoring-network
+
+  # Database replica for shard 2
+  mysql-replica-b:
+    container_name: mysql-replica-b
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fastapi_db
+    ports:
+      - "3327:3306"
+    command: >
+      --authentication_policy=mysql_native_password
+      --server-id=21
+      --log-bin=mysql-bin
+      --gtid_mode=ON
+      --enforce-gtid-consistency=ON
+      --read-only=1
+      --relay-log=relay-bin
+      --skip_replica_start=1
+      --innodb-buffer-pool-size=1G
+      --host-cache-size=0
+    networks:
+      - monitoring-network
+
+  # MySQL Exporters for Shard 1
+  mysql-exporter-master-a:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql-exporter
+    container_name: mysql-exporter-master-a
+    command:
+      - --config.my-cnf=/etc/mysql/my-master-a.cnf
+    ports:
+      - "9104:9104"
+    depends_on:
+      - mysql-master-a
+    networks:
+      - monitoring-network
+
+  mysql-exporter-replica-a:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql-exporter
+    container_name: mysql-exporter-replica-a
+    command:
+      - --config.my-cnf=/etc/mysql/my-replica-a.cnf
+    ports:
+      - "9105:9104"
+    depends_on:
+      - mysql-replica-a
+    networks:
+      - monitoring-network
+
+  # MySQL Exporters for Shard 2
+  mysql-exporter-master-b:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql-exporter
+    container_name: mysql-exporter-master-b
+    command:
+      - --config.my-cnf=/etc/mysql/my-master-b.cnf
+    ports:
+      - "9106:9104"
+    depends_on:
+      - mysql-master-b
+    networks:
+      - monitoring-network
+
+  mysql-exporter-replica-b:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql-exporter
+    container_name: mysql-exporter-replica-b
+    command:
+      - --config.my-cnf=/etc/mysql/my-replica-b.cnf
+    ports:
+      - "9107:9104"
+    depends_on:
+      - mysql-replica-b
+    networks:
+      - monitoring-network
+
